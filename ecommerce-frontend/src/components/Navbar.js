@@ -18,7 +18,7 @@ const Navbar = () => {
               </svg>
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-gray-200 to-gray-400 bg-clip-text text-transparent group-hover:from-white group-hover:to-gray-300 transition-all duration-300">
-              AutoParts
+              AutoVerse
             </span>
           </Link>
 

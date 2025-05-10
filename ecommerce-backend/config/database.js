@@ -9,18 +9,19 @@ class Database {
         if (!Database.instance) {
             // Initialize Sequelize connection
             this.sequelize = new Sequelize(
-                process.env.DB_NAME,
-                process.env.DB_USER,
-                process.env.DB_PASSWORD,
+                'car_parts_db', // Use the correct database name
+                'car_parts_db_owner',
+                '0F4QXKRPmHBW',
                 {
-                    host: process.env.DB_HOST,
-                    dialect: process.env.DB_DIALECT || 'postgres',
+                    host: 'ep-bold-union-a698c6lj.us-west-2.aws.neon.tech',
+                    dialect: 'postgres',
                     dialectOptions: {
                         ssl: {
                             require: true,
-                            rejectUnauthorized: false,
-                        },
+                            rejectUnauthorized: false
+                        }
                     },
+                    logging: console.log // Enable logging to see SQL queries
                 }
             );
 
@@ -35,6 +36,18 @@ class Database {
     // Method to get the Sequelize instance
     getSequelizeInstance() {
         return this.sequelize;
+    }
+
+    // Method to test the connection
+    async testConnection() {
+        try {
+            await this.sequelize.authenticate();
+            console.log('Database connection has been established successfully.');
+            return true;
+        } catch (error) {
+            console.error('Unable to connect to the database:', error);
+            return false;
+        }
     }
 }
 

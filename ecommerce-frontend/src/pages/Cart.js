@@ -46,12 +46,12 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-12 bg-gradient-to-b from-gray-50 to-gray-100">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Your Cart is Empty</h2>
+          <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">Your Cart is Empty</h2>
           <Link
             to="/"
-            className="text-blue-500 hover:text-blue-600"
+            className="inline-block px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl hover:from-gray-900 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 font-medium"
           >
             Continue Shopping
           </Link>
@@ -61,10 +61,15 @@ const Cart = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+    <div className="max-w-7xl mx-auto px-4 py-12 bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-extrabold mb-6 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent relative">
+          Shopping Cart
+          <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-gray-700 to-gray-500 rounded-full"></div>
+        </h1>
+      </div>
 
-      <div className="bg-white rounded-lg shadow-md">
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         {cartItems.map((item) => {
           const itemId = getItemId(item);
           const itemName = getItemName(item);
@@ -72,35 +77,35 @@ const Cart = () => {
           return (
             <div
               key={itemId}
-              className="flex items-center border-b p-6 last:border-b-0"
+              className="flex items-center border-b border-gray-100 p-6 last:border-b-0 hover:bg-gray-50 transition-colors duration-200"
             >
-            <div className="w-24 h-24 flex-shrink-0 mr-6">
+              <div className="w-24 h-24 flex-shrink-0 mr-6">
                 <img
-                src={`/images/${item.image_name}`}
-                alt={itemName}
-                className="w-full h-full object-cover rounded"
-                onError={(e) => {
-                e.target.src = '/images/default-part.jpg';
-                }}
-            />
-          </div>
+                  src={`/images/${item.image_name}`}
+                  alt={itemName}
+                  className="w-full h-full object-cover rounded-xl"
+                  onError={(e) => {
+                    e.target.src = '/images/default-part.jpg';
+                  }}
+                />
+              </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold">{itemName}</h3>
+                <h3 className="text-lg font-semibold text-gray-800">{itemName}</h3>
                 <p className="text-gray-600">${item.price}</p>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 bg-gray-100 rounded px-2">
+                <div className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2 shadow-inner">
                   <button
                     onClick={() => handleUpdateQuantity(itemId, -1)}
-                    className="p-1 hover:text-red-500"
+                    className="p-1 text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <Minus size={16} />
                   </button>
-                  <span className="w-8 text-center">{item.quantity}</span>
+                  <span className="w-8 text-center font-medium text-gray-800">{item.quantity}</span>
                   <button
                     onClick={() => handleUpdateQuantity(itemId, 1)}
-                    className="p-1 hover:text-green-500"
+                    className="p-1 text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <Plus size={16} />
                   </button>
@@ -108,7 +113,7 @@ const Cart = () => {
 
                 <button
                   onClick={() => handleRemoveItem(itemId)}
-                  className="text-red-500 hover:text-red-600"
+                  className="p-2 text-gray-500 hover:text-gray-800 transition-colors"
                 >
                   <Trash2 size={20} />
                 </button>
@@ -118,23 +123,23 @@ const Cart = () => {
         })}
       </div>
 
-      <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <span className="text-lg font-semibold">Total:</span>
-          <span className="text-2xl font-bold">${calculateTotal().toFixed(2)}</span>
+      <div className="mt-8 bg-white rounded-2xl shadow-lg p-8">
+        <div className="flex justify-between items-center mb-8">
+          <span className="text-xl font-semibold text-gray-800">Total:</span>
+          <span className="text-3xl font-bold text-gray-900">${calculateTotal().toFixed(2)}</span>
         </div>
-        <div className="flex justify-between gap-4">
+        <div className="flex justify-between gap-6">
           <Link
             to="/"
-            className="px-6 py-3 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-800 rounded-xl hover:from-gray-300 hover:to-gray-400 transition-all duration-300 text-center font-medium"
           >
             Continue Shopping
           </Link>
           <button
-          onClick={() => navigate('/checkout')}
-          className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            onClick={() => navigate('/checkout')}
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl hover:from-gray-900 hover:to-gray-800 transition-all duration-300 font-medium"
           >
-          Proceed to Checkout
+            Proceed to Checkout
           </button>
         </div>
       </div>

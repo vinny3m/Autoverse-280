@@ -61,32 +61,32 @@ const Chatbot = () => {
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center hover:bg-blue-700 transition-colors"
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-gray-800 to-gray-900 text-white shadow-lg flex items-center justify-center hover:from-gray-900 hover:to-gray-800 transition-all duration-300 transform hover:scale-105"
       >
         {isOpen ? <MessageCircle size={24} /> : <Bot size={24} />}
       </button>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-lg shadow-xl flex flex-col">
+        <div className="fixed bottom-24 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-xl flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="bg-blue-600 text-white px-4 py-3 rounded-t-lg flex items-center">
-            <Bot size={24} className="mr-2" />
-            <span className="font-semibold">Auto Parts Assistant</span>
+          <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-4 flex items-center">
+            <Bot size={24} className="mr-3" />
+            <span className="font-semibold text-lg">Auto Parts Assistant</span>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-gray-50 to-gray-100">
             {messages.map((message, index) => (
               <div
                 key={index}
                 className={`mb-4 flex ${message.type === 'outgoing' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
+                  className={`max-w-[80%] p-4 rounded-2xl ${
                     message.type === 'outgoing'
-                      ? 'bg-blue-600 text-white rounded-br-none'
-                      : 'bg-white text-gray-800 rounded-bl-none shadow'
+                      ? 'bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-br-none shadow-lg'
+                      : 'bg-white text-gray-800 rounded-bl-none shadow-md border border-gray-100'
                   }`}
                 >
                   {message.text}
@@ -95,8 +95,12 @@ const Chatbot = () => {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-200 p-3 rounded-lg animate-pulse">
-                  Typing...
+                <div className="bg-white p-4 rounded-2xl shadow-md border border-gray-100 animate-pulse">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  </div>
                 </div>
               </div>
             )}
@@ -104,21 +108,21 @@ const Chatbot = () => {
           </div>
 
           {/* Input Area */}
-          <div className="border-t p-4 bg-white rounded-b-lg">
-            <div className="flex space-x-2">
+          <div className="border-t border-gray-100 p-4 bg-white">
+            <div className="flex space-x-3">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about auto parts..."
-                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent bg-gray-50"
                 disabled={isLoading}
               />
               <button
                 onClick={handleSendMessage}
                 disabled={isLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="px-4 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl hover:from-gray-900 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-md"
               >
                 <Send size={20} />
               </button>

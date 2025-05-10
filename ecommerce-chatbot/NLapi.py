@@ -3,39 +3,48 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain.agents.agent_types import AgentType
-
 from langchain_openai import ChatOpenAI
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain_community.callbacks.manager import get_openai_callback
 from langchain_community.utilities import SQLDatabase
-
 from sqlalchemy import create_engine, text
 import os
 from dotenv import load_dotenv
 from typing import List, Dict
 
+# Load environment variables
 load_dotenv()
 
+# Database configuration
+DB_CONFIG = {
+    "user": "car_parts_db_owner",
+    "password": "0F4QXKRPmHBW",
+    "host": "ep-bold-union-a698c6lj.us-west-2.aws.neon.tech",
+    "database": "car_parts_db",
+    "port": "5432"
+}
+
+# OpenAI configuration
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise ValueError("OPENAI_API_KEY environment variable is not set")
+
 class DatabaseConnector:
-    def __init__(self, password: str,db_type: str = "postgresql", username: str = "postgres",  host: str = "localhost", port: int = 5432,
-             database: str = "your_database" ):
-                self.db_type = db_type
-                self.username = username
-                self.password = password
-                self.host = host
-                self.port = port
-                self.database = database
-                self.engine = None
-                self.connect()
+    def __init__(self):
+        self.engine = None
+        self.connect()
 
     def connect(self):
         """Initializes the database connection to Neon database."""
-        # Use the Neon connection string format
-        db_uri="postgresql://car_parts_db_owner:0F4QXKRPmHBW@ep-bold-union-a698c6lj.us-west-2.aws.neon.tech/car_parts_db?sslmode=require"
-
         try:
+            # Construct the connection string with endpoint ID
+            db_uri = f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}?sslmode=require&options=endpoint%3Dep-bold-union-a698c6lj"
+            
             self.engine = create_engine(db_uri)
-            print("Database connection established.")
+            # Test the connection
+            with self.engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            print("Database connection established successfully.")
         except Exception as e:
             print(f"Failed to connect to the database: {e}")
             raise
@@ -47,11 +56,9 @@ class DatabaseConnector:
         try:
             with self.engine.connect() as connection:
                 result = connection.execute(text(query))
-                # Check if the query returns rows
                 if result.returns_rows:
                     return result.fetchall()
                 else:
-                    # Commit for DML statements and return None
                     connection.commit()
                     print("Query executed successfully (no rows to return).")
                     return None
@@ -82,13 +89,7 @@ class DatabaseManager:
     def setup_database(self):
         """Initialize database connection"""
         try:
-            self.connector = DatabaseConnector(
-                db_type="postgresql",  # Changed from mysql+pymysql
-                username=os.getenv("DB_USER"),
-                password=os.getenv("DB_PASSWORD"),
-                host=os.getenv("DB_HOST"),
-                database=os.getenv("DB_NAME")
-            )
+            self.connector = DatabaseConnector()
         except Exception as e:
             raise ConnectionError(f"Failed to initialize database: {e}")
 
@@ -160,11 +161,11 @@ class DatabaseManager:
             # Initialize LangChain SQL Database wrapper
             self.langchain_db = SQLDatabase(engine=self.connector.get_engine)
 
-            # Initialize LLM
+            # Initialize LLM with explicit API key
             llm = ChatOpenAI(
                 temperature=0,
                 model_name="gpt-3.5-turbo",
-                openai_api_key=os.getenv("OPENAI_API_KEY"),
+                openai_api_key=OPENAI_API_KEY,
                 max_tokens=2000
             )
 
@@ -176,8 +177,8 @@ class DatabaseManager:
                 toolkit=toolkit,
                 verbose=True,
                 agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-                handle_parsing_errors=True,  # Add error handling
-                top_k=None  # Remove result limiting
+                handle_parsing_errors=True,
+                top_k=None
             )
         except Exception as e:
             raise Exception(f"Failed to initialize LangChain components: {e}")
@@ -220,9 +221,6 @@ class DatabaseManager:
             self.connector.close()
 
 # Initialize FastAPI app
-app = FastAPI(title="Database Query API")
-
-
 app = FastAPI(title="Database Query API")
 
 app.add_middleware(

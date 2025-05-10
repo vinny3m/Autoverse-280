@@ -1,6 +1,6 @@
 # E-commerce Application with Chatbot Integration
 
-This repository contains an e-commerce application which sells car parts, with an integrated chatbot feature. The application’s components are containerized using Docker and automatically built and deployed with CircleCI.
+This repository contains an e-commerce application which sells car parts, with an integrated chatbot feature.
 
 ## Key Features
 - Ecommerce web page for Car parts
@@ -13,7 +13,6 @@ This repository contains an e-commerce application which sells car parts, with a
 - Message queuing with RabbitMQ
 - Cache using Redis
 - Observability & Metrics with Grafana/Prometheus
-- CI/CD with CircleCI
 - BI Dashboard with Tableau
 - LLM Chatbot
 
@@ -46,7 +45,7 @@ This repository contains an e-commerce application which sells car parts, with a
 - Used for message queuing to enable reliable and asynchronous communication between components
 
 ### Observability & Metrics
-- Locatied in `/observability`
+- Located in `/observability`
 - These tools provide real-time observability and analytics for the infrastructure and application
 
 ## Environment Variables
@@ -113,42 +112,48 @@ EMAIL_PASSWORD
 LOG_LEVEL
 ```
 
-## CI/CD Pipeline
-
-This project uses CircleCI for continuous integration and deployment. The pipeline consists of five main jobs:
-
-1. `frontend-build`: Builds and tests the frontend application
-2. `backend-build`: Builds and tests the backend service
-3. `nlapi-build`: Builds the NL API service with required environment configuration
-4. `redis-app-build`: Builds the Redis application with required environment configuration
-5. `rabbitmq-build`: Builds the RabbitMq application with required environment configuration
-
-Each job:
-- Sets up the appropriate Docker environment
-- Installs dependencies
-- Runs tests (where applicable)
-- Builds Docker images
-- Pushes images to Docker Hub
-
 ## Getting Started
 
 1. Clone the repository
 2. For local development, create `.env` files in the respective directories with the required environment variables
 3. Install dependencies for each component:
-   ```bash
-   docker-compose up --build
-   ```
+
+### Frontend Setup
+```bash
+cd ecommerce-frontend
+npm install
+npm start
+```
+
+### Backend Setup
+```bash
+cd ecommerce-backend
+npm install
+npm start
+```
+
+### Chatbot Setup
+```bash
+cd ecommerce-chatbot
+pip install -r requirements.txt
+python NLapi.py
+```
+
+### Redis Setup
+```bash
+cd redis
+pip install -r requirements.txt
+python app.py
+```
+
+### Message Queue Setup
+```bash
+cd "messaging queue"
+pip install -r requirements.txt
+python main.py
+```
 
 ### Start RabbitMQ server:
-```
+```bash
 rabbitmq-server start
 ```
-
-## Docker Images
-
-All components are containerized and available on Docker Hub under the `aishwaryamurahari` organization:
-- Frontend: `aishwaryamurahari/ecommerce-frontend:1.0`
-- Backend: `aishwaryamurahari/ecommerce-backend:1.0`
-- NL API: `aishwaryamurahari/nlapi:latest`
-- Redis App: `aishwaryamurahari/redis-app:latest`
-- RabbitMq: `aishwaryamurahari/rabbit_mq_app:latest`

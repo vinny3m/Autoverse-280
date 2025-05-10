@@ -66,69 +66,54 @@ db.sequelize = sequelize;
 const UserOrderItem = require('../models/userorderitem');
 const UserOrder = require('../models/userorder');
 
-/**
- * Create a new order
- */
-const createOrder = async (req, res) => {
-    const generateOrderId = () => {
-        const timestamp = Date.now().toString();
-        const random = Math.random().toString(36).substr(2, 5);
-        return `ORD-${timestamp}-${random.toUpperCase()}`;
-      };
+const orderProducer = require('../services/kafka/orderProducer');
+const orderConsumer = require('../services/kafka/orderConsumer');
 
-    const generateUserId = () => {
-          const timestamp = Date.now().toString();
-          const random = Math.random().toString(36).substr(2, 5);
-          return `USR-${timestamp}-${random.toUpperCase()}`;
-         };
-  const transaction = await db.sequelize.transaction(); // Start a transaction
-  try {
-    const order_id = generateOrderId();
-    const user_id = generateUserId();
-    const { items, total_amount, shippingDetails, paymentDetails } = req.body;
+// Initialize Kafka connections
+async function initializeKafka() {
+    try {
+        await orderProducer.connect();
+        await orderConsumer.connect();
+        
+        // Start processing orders
+        await orderConsumer.startProcessing(async (orderData) => {
+            // Process the order (e.g., update inventory, send notifications)
+            console.log('Processing order:', orderData);
+            // Add your order processing logic here
+        });
+    } catch (error) {
+        console.error('Error initializing Kafka:', error);
+    }
+}
 
-    // Create the order
-    const order = await UserOrder.create(
-      {
-        order_id: order_id,
-        user_id: user_id,
-        total_amount: total_amount,
-        shipping_address: shippingDetails.shipping_address,
-        city: shippingDetails.city,
-        zip_code: shippingDetails.zip_code,
-        status: 'PENDING',
-        first_name: shippingDetails.first_name,
-        last_name: shippingDetails.last_name,
-        email: shippingDetails.email,
-        payment_details: 'CARD', // Dummy payment details
-      },
-      { transaction }
-    );
+// Create a new order
+async function createOrder(req, res) {
+    try {
+        const orderData = {
+            orderId: Date.now().toString(),
+            ...req.body,
+            timestamp: new Date().toISOString()
+        };
 
-    // Create the order items
-    const orderItems = items.map((item) => ({
-      order_id: order_id,
-      part_id: item.part_id,
-      quantity: item.quantity,
-      price: item.price,
-    }));
+        // Send order to Kafka
+        await orderProducer.sendOrder(orderData);
 
-    await UserOrderItem.bulkCreate(orderItems, { transaction });
+        res.status(201).json({
+            success: true,
+            message: 'Order created successfully',
+            orderId: orderData.orderId
+        });
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creating order'
+        });
+    }
+}
 
-    // Commit the transaction
-    await transaction.commit();
-
-    res.status(201).json({
-      message: 'Order created successfully',
-      order,
-    });
-  } catch (error) {
-    // Rollback the transaction in case of error
-    await transaction.rollback();
-    res.status(500).json({ error: error.message });
-  }
-};
-
+// Initialize Kafka when the application starts
+initializeKafka();
 
 /**
  * @swagger
